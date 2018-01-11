@@ -1,2 +1,2 @@
 # docker
-simple docker implementation in go.
+simple container implementation in go.
