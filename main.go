@@ -34,8 +34,11 @@ func parent() {
 }
 
 func child() {
-	fmt.Println("start child......")
+	fmt.Printf("start child......, pid %v\n", syscall.Getpid())
 
+	if err := syscall.Sethostname([]byte("container")); err != nil {
+		panic(fmt.Sprintf("Sethostname: %v", err))
+	}
 	cmd := exec.Command(os.Args[2], os.Args[3:]...)
 	cmd.Stdout = os.Stdout
 	cmd.Stdin = os.Stdin
