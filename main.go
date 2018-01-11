@@ -14,12 +14,12 @@ func main() {
 	case "child":
 		child()
 	default:
-		panic("wat should I do")
+		panic("what should I do")
 	}
 }
 
 func parent() {
-	cmd := exec.Command("/proc/self/exe", append([]string{"child"}, os.Args[2:]...)...)
+	cmd := exec.Command(os.Args[0], append([]string{"child"}, os.Args[2:]...)...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
 	}
@@ -34,19 +34,13 @@ func parent() {
 }
 
 func child() {
-	must(syscall.Mount("rootfs", "rootfs", "", syscall.MS_BIND, ""))
-	must(os.MkdirAll("rootfs/oldrootfs", 0700))
-	must(syscall.PivotRoot("rootfs", "rootfs/oldrootfs"))
-	must(os.Chdir("/"))
+	fmt.Println("start child......")
 
 	cmd := exec.Command(os.Args[2], os.Args[3:]...)
-	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
+	cmd.Stdin = os.Stdin
 	if err := cmd.Run(); err != nil {
-		fmt.Println("ERROR", err)
-		os.Exit(1)
+		panic(fmt.Sprintf("child panic: %v", err))
 	}
 }
 
