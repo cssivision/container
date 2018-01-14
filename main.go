@@ -23,15 +23,23 @@ func main() {
 func parent() {
 	cmd := exec.Command(os.Args[0], append([]string{"child"}, os.Args[2:]...)...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS,
+		Cloneflags: syscall.CLONE_NEWUTS | syscall.CLONE_NEWPID | syscall.CLONE_NEWNS | syscall.CLONE_NEWNET,
 	}
 	cmd.Stdin = os.Stdin
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
-	if err := cmd.Run(); err != nil {
-		fmt.Println("ERROR", err)
-		os.Exit(1)
+	if err := cmd.Start(); err != nil {
+		panic(fmt.Sprintf("start parent err: %v", err))
+	}
+
+	// set bridge and veth pair for container.
+	if err := putIface(cmd.Process.Pid); err != nil {
+		panic(fmt.Sprintf("putIface err: %v", err))
+	}
+
+	if err := cmd.Wait(); err != nil {
+		panic(fmt.Sprintf("wait parent err: %v\n", err))
 	}
 }
 
