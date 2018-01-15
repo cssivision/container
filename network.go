@@ -110,7 +110,14 @@ func setupIface(link netlink.Link, ip string) error {
 	if err != nil {
 		return fmt.Errorf("parse IP: %v", err)
 	}
-	return netlink.AddrAdd(link, addr)
+	if err := netlink.AddrAdd(link, addr); err != nil {
+		return fmt.Errorf("addr add err: %v", err)
+	}
+
+	if err := netlink.LinkSetUp(link); err != nil {
+		return fmt.Errorf("link set up err: %v", err)
+	}
+	return nil
 }
 
 func waitForIface() (netlink.Link, error) {
