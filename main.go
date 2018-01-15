@@ -33,6 +33,7 @@ func parent() {
 		panic(fmt.Sprintf("start parent err: %v", err))
 	}
 
+	log.Printf("container PID: %d", cmd.Process.Pid)
 	// set bridge and veth pair for container.
 	if err := putIface(cmd.Process.Pid); err != nil {
 		panic(fmt.Sprintf("putIface err: %v", err))
