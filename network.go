@@ -43,7 +43,7 @@ func createBridge() error {
 		return fmt.Errorf("br add addr err: %v", err)
 	}
 
-	// sets up bridge ( ip link set dev unc0 up )
+	// sets up bridge ( ip link set dev container0 up )
 	if err := netlink.LinkSetUp(br); err != nil {
 		return err
 	}
