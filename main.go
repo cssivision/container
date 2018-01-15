@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path"
@@ -51,6 +52,7 @@ func child() {
 	cmd.Stdin = os.Stdin
 	cmd.Stderr = os.Stderr
 
+	// setup environment for container.
 	setup()
 	if err := cmd.Run(); err != nil {
 		panic(fmt.Sprintf("child panic: %v", err))
@@ -76,7 +78,15 @@ func setup() {
 	}
 
 	if err := syscall.Mount("proc", "proc", "proc", 0, ""); err != nil {
-		log.Printf("failed to mount proc to %s: %v", target, err)
-		panic(err)
+		panic(fmt.Sprintf("failed to mount proc to %s: %v", target, err))
+	}
+
+	lnk, err := waitForIface()
+	if err != nil {
+		panic(fmt.Sprintf("waitForIface err: %v", err))
+	}
+
+	if err := setupIface(lnk, fmt.Sprintf(ipTmpl, rand.Intn(253)+2)); err != nil {
+		panic(fmt.Sprintf("setupIface err: %v", err))
 	}
 }

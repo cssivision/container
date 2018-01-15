@@ -14,6 +14,7 @@ const (
 	bridgeName = "container0"
 	vethPrefix = "veth-pair"
 	ipAddr     = "10.88.37.1/24"
+	ipTmpl     = "10.88.37.%d/24"
 )
 
 func init() {
