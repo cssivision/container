@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"net"
 	"time"
 
 	"github.com/vishvananda/netlink"
@@ -21,40 +20,39 @@ func init() {
 	rand.Seed(time.Now().UnixNano())
 }
 
-func createBridge() error {
-	_, err := net.InterfaceByName(bridgeName)
-	if err == nil {
-		return nil
+func createBridge() (netlink.Link, error) {
+	if br, err := netlink.LinkByName(bridgeName); err == nil {
+		return br, nil
 	}
 
 	la := netlink.NewLinkAttrs()
 	la.Name = bridgeName
 	br := &netlink.Bridge{LinkAttrs: la}
 	if err := netlink.LinkAdd(br); err != nil {
-		return fmt.Errorf("bridge creation: %v", err)
+		return nil, fmt.Errorf("bridge creation: %v", err)
 	}
 
 	addr, err := netlink.ParseAddr(ipAddr)
 	if err != nil {
-		return fmt.Errorf("parse address %s: %v", ipAddr, err)
+		return nil, fmt.Errorf("parse address %s: %v", ipAddr, err)
 	}
 
 	if err := netlink.AddrAdd(br, addr); err != nil {
-		return fmt.Errorf("br add addr err: %v", err)
+		return nil, fmt.Errorf("br add addr err: %v", err)
 	}
 
 	// sets up bridge ( ip link set dev container0 up )
 	if err := netlink.LinkSetUp(br); err != nil {
-		return err
+		return nil, err
 	}
-	return nil
+	return br, nil
 }
 
-func createVethPair(pid int) error {
+func createVethPair(pid int) (netlink.Link, netlink.Link, error) {
 	// get bridge to set as master for one side of veth-pair
 	br, err := netlink.LinkByName(bridgeName)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 	// generate names for interfaces
 	x1, x2 := rand.Intn(10000), rand.Intn(10000)
@@ -68,32 +66,43 @@ func createVethPair(pid int) error {
 
 	vp := &netlink.Veth{LinkAttrs: la, PeerName: peerName}
 	if err := netlink.LinkAdd(vp); err != nil {
-		return fmt.Errorf("veth pair creation %s <-> %s: %v", parentName, peerName, err)
+		return nil, nil, fmt.Errorf("veth pair creation %s <-> %s: %v", parentName, peerName, err)
 	}
 
 	// get peer by name to put it to namespace
 	peer, err := netlink.LinkByName(peerName)
 	if err != nil {
-		return fmt.Errorf("get peer interface: %v", err)
+		return nil, nil, fmt.Errorf("get peer interface: %v", err)
 	}
 
 	// put peer side to network namespace of specified PID
 	if err := netlink.LinkSetNsPid(peer, pid); err != nil {
-		return fmt.Errorf("move peer to ns of %d: %v", pid, err)
+		return nil, nil, fmt.Errorf("move peer to ns of %d: %v", pid, err)
 	}
 	if err := netlink.LinkSetUp(vp); err != nil {
-		return err
+		return nil, nil, err
 	}
-	return nil
+	parentVeth, err := netlink.LinkByName(parentName)
+	if err != nil {
+		return nil, nil, fmt.Errorf("get parent veth interface err: %v", err)
+	}
+	return parentVeth, peer, nil
 }
 
 func putIface(pid int) error {
-	if err := createBridge(); err != nil {
+	br, err := createBridge()
+	if err != nil {
 		return fmt.Errorf("create bridge err: %v", err)
 	}
-	if err := createVethPair(pid); err != nil {
+	parentVeth, _, err := createVethPair(pid)
+	if err != nil {
 		return fmt.Errorf("create veth pair err: %v", err)
 	}
+
+	if err := netlink.LinkSetMaster(parentVeth, br.(*netlink.Bridge)); err != nil {
+		return fmt.Errorf("link set master err: %v", err)
+	}
+
 	return nil
 }
 
