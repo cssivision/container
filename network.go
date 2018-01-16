@@ -128,10 +128,14 @@ func setupIface(link netlink.Link, ip string) error {
 		return fmt.Errorf("link set up err: %v", err)
 	}
 
+	bridgeIP, _, err := net.ParseCIDR(ipAddr)
+	if err != nil {
+		return fmt.Errorf("parse cidr err: %v", err)
+	}
 	route := &netlink.Route{
 		Scope:     netlink.SCOPE_UNIVERSE,
 		LinkIndex: link.Attrs().Index,
-		Gw:        net.ParseIP(ipAddr),
+		Gw:        bridgeIP,
 	}
 
 	if err := netlink.RouteAdd(route); err != nil {
