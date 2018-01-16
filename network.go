@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net"
 	"time"
 
 	"github.com/vishvananda/netlink"
@@ -125,6 +126,16 @@ func setupIface(link netlink.Link, ip string) error {
 
 	if err := netlink.LinkSetUp(link); err != nil {
 		return fmt.Errorf("link set up err: %v", err)
+	}
+
+	route := &netlink.Route{
+		Scope:     netlink.SCOPE_UNIVERSE,
+		LinkIndex: link.Attrs().Index,
+		Gw:        net.ParseIP(ipAddr),
+	}
+
+	if err := netlink.RouteAdd(route); err != nil {
+		return fmt.Errorf("route add err: %v", err)
 	}
 	return nil
 }
