@@ -145,7 +145,10 @@ func setupIface(link netlink.Link) error {
 		return fmt.Errorf("link set up err: %v", err)
 	}
 
-	vethIP := net.ParseIP(vethAddr)
+	vethIP, _, err := net.ParseCIDR(vethAddr)
+	if err != nil {
+		return fmt.Errorf("parse veth ip err: %v", err)
+	}
 	route := &netlink.Route{
 		Scope:     netlink.SCOPE_UNIVERSE,
 		LinkIndex: link.Attrs().Index,
