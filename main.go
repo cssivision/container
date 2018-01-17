@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 	"os/exec"
 	"path"
@@ -86,7 +85,7 @@ func setup() {
 		panic(fmt.Sprintf("waitForIface err: %v", err))
 	}
 
-	if err := setupIface(lnk, fmt.Sprintf(ipTmpl, rand.Intn(253)+2)); err != nil {
+	if err := setupIface(lnk); err != nil {
 		panic(fmt.Sprintf("setupIface err: %v", err))
 	}
 }
