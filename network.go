@@ -11,6 +11,7 @@ import (
 
 var (
 	bridgeName   = "container0"
+	hostDevice   = "eth0"
 	bridgeIP     = "10.88.37.1/24"
 	vethName     = "veth"
 	vethPeerName = "veth-peer"
@@ -117,10 +118,6 @@ func putIface(pid int) error {
 		return fmt.Errorf("set iptables err: %v", err)
 	}
 
-	return nil
-}
-
-func setIptables() error {
 	return nil
 }
 
