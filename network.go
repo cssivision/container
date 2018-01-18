@@ -101,7 +101,8 @@ func createVethPair(pid int) (netlink.Link, error) {
 }
 
 func putIface(pid int) error {
-	if err := setIptables(); err != nil {
+	iptablesRules := getIptablesRules(bridgeIP, hostDevice, bridgeName)
+	if err := setIptables(iptablesRules); err != nil {
 		return fmt.Errorf("set iptables err: %v", err)
 	}
 
