@@ -2,8 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"strings"
 
 	"github.com/coreos/go-iptables/iptables"
 )
@@ -33,7 +31,6 @@ func setIptables() error {
 	}
 
 	for _, rule := range rules(bridgeIP, hostDevice, bridgeName) {
-		log.Println("Adding iptables rule: ", strings.Join(rule.rulespec, " "))
 		if err := ipt.AppendUnique(rule.table, rule.chain, rule.rulespec...); err != nil {
 			return fmt.Errorf("failed to insert IPTables rule: %v", err)
 		}

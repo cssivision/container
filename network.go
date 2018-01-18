@@ -101,6 +101,10 @@ func createVethPair(pid int) (netlink.Link, error) {
 }
 
 func putIface(pid int) error {
+	if err := setIptables(); err != nil {
+		return fmt.Errorf("set iptables err: %v", err)
+	}
+
 	br, err := createBridge()
 	if err != nil {
 		return fmt.Errorf("create bridge err: %v", err)
@@ -112,10 +116,6 @@ func putIface(pid int) error {
 
 	if err := netlink.LinkSetMaster(veth, br.(*netlink.Bridge)); err != nil {
 		return fmt.Errorf("link set master err: %v", err)
-	}
-
-	if err := setIptables(); err != nil {
-		return fmt.Errorf("set iptables err: %v", err)
 	}
 
 	return nil
