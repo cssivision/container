@@ -22,7 +22,7 @@ simple container implementation in go.
 * [Part 6: Namespaces in Go - Network](https://medium.com/@teddyking/namespaces-in-go-network-fdcf63e76100)
 * [Part 7: Namespaces in Go - UTS](https://medium.com/@teddyking/namespaces-in-go-uts-d47aebcdf00e)
 
-4, Shell script to create network namespace.e7c498b222f0aa49efa04b858e5432cda437fc19
+4, Shell script to create network namespace.
 * [https://github.com/cssivision/container/blob/master/network-namespace.sh](https://github.com/cssivision/container/blob/master/network-namespace.sh)
 
 5, Iptables
