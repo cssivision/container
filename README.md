@@ -25,12 +25,12 @@ simple container implementation in go.
 4, Shell script to create network namespace.e7c498b222f0aa49efa04b858e5432cda437fc19
 * [https://github.com/cssivision/container/blob/master/network-namespace.sh](https://github.com/cssivision/container/blob/master/network-namespace.sh)
 
-5, Iptables.
+5, Iptables
 * [a-deep-dive-into-iptables-and-netfilter-architecture](https://www.digitalocean.com/community/tutorials/a-deep-dive-into-iptables-and-netfilter-architecture)
 * [Security Guide IPTables](https://access.redhat.com/documentation/en-US/Red_Hat_Enterprise_Linux/6/html-single/Security_Guide/index.html#sect-Security_Guide-IPTables)
 
 
-## Network.
+## Network
 set dns resolver in container:
 ```sh
 echo "nameserver 8.8.8.8" >> /etc/resolv.conf
@@ -40,9 +40,10 @@ set ip forward in host:
 sysctl -w net.ipv4.ip_forward=1
 ```
 
-## Run.
+## Run
 ```sh
 make config
 make build
 make run
 ```
+you can `ping google.com`.
