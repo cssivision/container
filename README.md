@@ -46,4 +46,4 @@ make config
 make build
 make run
 ```
-you can `ping google.com`.
+after this, you can `ping google.com`, this should work.
