@@ -69,6 +69,7 @@ func createVethPair(pid int) (netlink.Link, error) {
 	la.MasterIndex = br.Attrs().Index
 
 	vp := &netlink.Veth{LinkAttrs: la, PeerName: vethPeerName}
+	netlink.LinkDel(vp)
 	if err := netlink.LinkAdd(vp); err != nil {
 		return nil, fmt.Errorf("veth pair creation %s <-> %s: %v", vethName, vethPeerName, err)
 	}
